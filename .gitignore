@@ -1,0 +1,22 @@
+# Go build artifacts
+/bin/
+/build/
+/dist/
+*.exe
+*.out
+*.test
+
+vendor/
+
+.idea/
+.vscode/
+*.swp
+
+.DS_Store
+
+/mysql_data/
+
+*.log
+
+config.yaml
+.env
