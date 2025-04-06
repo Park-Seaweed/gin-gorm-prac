@@ -28,7 +28,7 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := uc.Service.RegisterUser(&req)
+	res, err := uc.Service.RegisterUser(&req)
 	if err != nil {
 		logger.Log.Error("에러", zap.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -37,11 +37,7 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"id":    user.ID,
-		"name":  user.Name,
-		"email": user.Email,
-	})
+	c.JSON(http.StatusCreated, res)
 }
 
 func (uc *UserController) GetUser(c *gin.Context) {
@@ -81,12 +77,5 @@ func (uc *UserController) LoginUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "로그인 성공",
-		"user": gin.H{
-			"id":    user.ID,
-			"name":  user.Name,
-			"email": user.Email,
-		},
-	})
+	ctx.JSON(http.StatusCreated, user)
 }

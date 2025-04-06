@@ -8,4 +8,8 @@ type Config struct {
 		Password string `mapstructure:"password"`
 		Name     string `mapstructure:"name"`
 	} `mapstructure:"database"`
+
+	JwtSecret struct {
+		Secret string `mapstructure:"secret"`
+	} `mapstructure:"jwtSecret"`
 }

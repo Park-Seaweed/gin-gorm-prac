@@ -32,12 +32,15 @@ func main() {
 	db.AutoMigrate(&model.User{}, &model.Post{})
 
 	// Repository → Service → Controller
+	jwtService := service.NewJwtServiceFromEnv(cfg)
+	authController := controller.NewAuthController(jwtService)
+
 	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(userRepo, jwtService)
 	userController := controller.NewUserController(userService)
 
 	postRepo := repository.NewPostRepository(db)
-	postService := service.NewPostService(postRepo)
+	postService := service.NewPostService(postRepo, userRepo)
 
 	postController := controller.NewPostController(postService) // 아직은 DB 미사용
 
@@ -50,8 +53,9 @@ func main() {
 	controllers := &controller.Controllers{
 		UserController: userController,
 		PostController: postController,
+		AuthController: authController,
 	}
-	router.SetupRouter(r, controllers)
+	router.SetupRouter(r, controllers, jwtService)
 
 	// 서버 시작
 	r.Run(":8080")

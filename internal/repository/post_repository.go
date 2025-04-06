@@ -24,3 +24,11 @@ func (postRepository *PostRepository) FindAll() ([]model.Post, error) {
 	}
 	return posts, nil
 }
+
+func (postRepository *PostRepository) FindPostsByUserID(userID uint) ([]model.Post, error) {
+	var posts []model.Post
+	if err := postRepository.DB.Where("user_id = ?", userID).Find(&posts).Error; err != nil {
+		return nil, err
+	}
+	return posts, nil
+}

@@ -8,21 +8,30 @@ import (
 )
 
 type PostService struct {
-	Repo *repository.PostRepository
+	PostRepo *repository.PostRepository
+	UserRepo *repository.UserRepository
 }
 
-func NewPostService(repo *repository.PostRepository) *PostService {
-	return &PostService{Repo: repo}
+func NewPostService(postRepo *repository.PostRepository, userRepo *repository.UserRepository) *PostService {
+	return &PostService{
+		PostRepo: postRepo,
+		UserRepo: userRepo,
+	}
 }
 
-func (postService *PostService) CreatePost(req *dto.CreatePostRequest) (*model.Post, error) {
+func (postService *PostService) CreatePost(email string, req *dto.CreatePostRequest) (*model.Post, error) {
+	user, err := postService.UserRepo.FindByEmail(email)
+	if err != nil {
+		return nil, fmt.Errorf("없는 이메일: %w", err)
+	}
+
 	post := &model.Post{
 		Title:   req.Title,
 		Content: req.Content,
-		UserID:  req.UserID,
+		UserID:  user.ID,
 	}
 
-	if err := postService.Repo.Create(post); err != nil {
+	if err := postService.PostRepo.Create(post); err != nil {
 		return nil, fmt.Errorf("게시글 생성 실패: %w", err)
 	}
 	return post, nil
@@ -30,5 +39,14 @@ func (postService *PostService) CreatePost(req *dto.CreatePostRequest) (*model.P
 }
 
 func (postService *PostService) GetAllPosts() ([]model.Post, error) {
-	return postService.Repo.FindAll()
+	return postService.PostRepo.FindAll()
+}
+
+func (postService *PostService) GetPosts(email string) ([]model.Post, error) {
+	user, err := postService.UserRepo.FindByEmail(email)
+	if err != nil {
+		return nil, fmt.Errorf("없는 이메일: %w", err)
+	}
+
+	return postService.PostRepo.FindPostsByUserID(user.ID)
 }

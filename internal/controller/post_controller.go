@@ -5,7 +5,6 @@ import (
 	"gin-test/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 type PostController struct {
@@ -17,21 +16,21 @@ func NewPostController(service *service.PostService) *PostController {
 }
 
 func (postController *PostController) CreatePost(ctx *gin.Context) {
-	userIDParam := ctx.Param("user_id")
-	userID, err := strconv.Atoi(userIDParam)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "잘못된 user_id입니다"})
+	emailValue, exists := ctx.Get("email")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "로그인 정보가 없습니다"})
 		return
 	}
+
+	email := emailValue.(string)
+
 	var req dto.CreatePostRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "유효하지 않은 요청입니다", "details": err.Error()})
 		return
 	}
 
-	req.UserID = uint(userID)
-
-	post, err := postController.Service.CreatePost(&req)
+	post, err := postController.Service.CreatePost(email, &req)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "게시글 생성 실패"})
 		return
@@ -42,22 +41,19 @@ func (postController *PostController) CreatePost(ctx *gin.Context) {
 }
 
 func (postController *PostController) GetPost(ctx *gin.Context) {
-	//idParam := ctx.Param("id")
-	//id, err := strconv.Atoi(idParam)
-	//if err != nil {
-	//	ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
-	//	return
-	//}
-	//
-	//for _, p := range model.Posts {
-	//	if p.ID == id {
-	//		ctx.JSON(http.StatusOK, p)
-	//		return
-	//	}
-	//}
-	//
-	//
-	//ctx.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
+	emailValue, exists := ctx.Get("email")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "로그인 정보가 없습니다"})
+		return
+	}
+
+	email := emailValue.(string)
+
+	userPosts, err := postController.Service.GetPosts(email)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+	ctx.JSON(http.StatusOK, userPosts)
 }
 
 func (postController *PostController) GetAllPosts(c *gin.Context) {
