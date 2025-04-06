@@ -56,7 +56,7 @@ func (jwtService *JwtService) ParseToken(tokenStr string) (email string, tokenTy
 	return email, tokenType, nil
 }
 
-func (jwtService *JwtService) RefreshAccessToken(refreshToken string) (string, error) {
+func (jwtService *JwtService) RefreshToken(refreshToken string, tokenKind string) (string, error) {
 	email, tokenType, err := jwtService.ParseToken(refreshToken)
 	if err != nil {
 		return "", fmt.Errorf("토큰 파싱 실패: %w", err)
@@ -64,16 +64,13 @@ func (jwtService *JwtService) RefreshAccessToken(refreshToken string) (string, e
 	if tokenType != "refresh" {
 		return "", fmt.Errorf("리프레시 토큰이 아님")
 	}
-	return jwtService.GenerateAccessToken(email)
-}
 
-func (jwtService *JwtService) RefreshRefreshToken(refreshToken string) (string, error) {
-	email, tokenType, err := jwtService.ParseToken(refreshToken)
-	if err != nil {
-		return "", fmt.Errorf("토큰 파싱 실패: %w", err)
+	switch tokenKind {
+	case "access":
+		return jwtService.GenerateAccessToken(email)
+	case "refresh":
+		return jwtService.GenerateRefreshToken(email)
+	default:
+		return "", fmt.Errorf("알 수 없는 토큰 종류입니다")
 	}
-	if tokenType != "refresh" {
-		return "", fmt.Errorf("리프레시 토큰이 아님")
-	}
-	return jwtService.GenerateRefreshToken(email)
 }

@@ -16,8 +16,6 @@ func GinZapLogger() gin.HandlerFunc {
 		method := c.Request.Method
 		clientIP := c.ClientIP()
 
-		c.Next()
-
 		latency := time.Since(start)
 		status := c.Writer.Status()
 
@@ -29,5 +27,6 @@ func GinZapLogger() gin.HandlerFunc {
 			zap.String("ip", clientIP),
 			zap.Duration("latency", latency),
 		)
+		c.Next()
 	}
 }
