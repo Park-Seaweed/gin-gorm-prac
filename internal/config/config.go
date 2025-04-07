@@ -2,14 +2,14 @@ package config
 
 type Config struct {
 	Database struct {
-		Host     string `mapstructure:"host"`
-		Port     int    `mapstructure:"port"`
-		User     string `mapstructure:"user"`
-		Password string `mapstructure:"password"`
-		Name     string `mapstructure:"name"`
-	} `mapstructure:"database"`
+		Host     string `yaml:"host"`
+		Port     int    `yaml:"port"`
+		User     string `yaml:"user"`
+		Password string `yaml:"password"`
+		Name     string `yaml:"name"`
+	} `yaml:"database"`
 
 	JwtSecret struct {
-		Secret string `mapstructure:"secret"`
-	} `mapstructure:"jwtSecret"`
+		Secret string `yaml:"secret"`
+	} `yaml:"jwtSecret"`
 }

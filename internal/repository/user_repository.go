@@ -36,3 +36,9 @@ func (userRepository *UserRepository) FindByID(id uint) (*model.User, error) {
 	}
 	return &user, nil
 }
+
+func (userRepository *UserRepository) UpdateRefreshToken(userID uint, token string) error {
+	return userRepository.DB.Model(&model.User{}).
+		Where("id = ?", userID).
+		Update("refresh_token", token).Error
+}

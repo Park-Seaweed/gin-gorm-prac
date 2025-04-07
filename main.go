@@ -29,7 +29,11 @@ func main() {
 	if err != nil {
 		logger.Log.Error("", zap.Error(err))
 	}
-	db.AutoMigrate(&model.User{}, &model.Post{})
+	if err := db.AutoMigrate(&model.User{}, &model.Post{}); err != nil {
+		logger.Log.Fatal("AutoMigrate 실패", zap.Error(err))
+	} else {
+		logger.Log.Info("DB 마이그레이션 완료")
+	}
 
 	// Repository → Service → Controller
 	jwtService := service.NewJwtServiceFromEnv(cfg)
